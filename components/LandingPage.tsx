@@ -372,11 +372,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onMentorLog
                       ))}
                     </ul>
                     <div className="flex items-end gap-2 mb-1">
-                      <span className="text-4xl font-bold text-slate-900 dark:text-white">$29</span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">/mo • Monthly</span>
+                      <span className="text-4xl font-bold text-slate-900 dark:text-white">$30-$100</span>
+                      
                     </div>
-                    <div className="text-xs text-slate-400 mb-6">Save 20% with annual billing.</div>
-                    <button onClick={onStart} className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors">Upgrade Now</button>
+                    <div className="text-xs text-slate-400 mb-6">Per mentorship </div>
+                    <button onClick={onLogin} className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors">Get Mentored</button>
                   </div>
                 </div>
                 {/* Mentor Pricing Explanation */}
