@@ -34,7 +34,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onMentorLog
             </button>
             <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
             <button 
-              onClick={isMentorMode ? onMentorLogin : onLogin}
+              onClick={onLogin}
               className="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm transition-colors"
             >
               Log In
@@ -148,9 +148,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onMentorLog
                     >
                     Start Free Analysis <ChevronRight size={20} />
                     </button>
-                    <button className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2">
-                    View Demo
-                    </button>
+                    {/* View Demo button removed */}
                 </div>
 
                 <div className="mt-16 flex items-center justify-center gap-8 text-slate-400 dark:text-slate-600 grayscale opacity-70">

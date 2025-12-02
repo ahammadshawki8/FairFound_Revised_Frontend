@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from '../types';
 import { Users, Calendar, DollarSign, CheckCircle2, TrendingUp, Bell } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -9,6 +9,18 @@ interface MentorDashboardProps {
 }
 
 const MentorDashboard: React.FC<MentorDashboardProps> = ({ onNavigate }) => {
+  const [activeMenteesCount, setActiveMenteesCount] = useState(12);
+  const [newConnections, setNewConnections] = useState<any[]>([]);
+
+  useEffect(() => {
+      // Check for new connections from local storage
+      const connections = JSON.parse(localStorage.getItem('fairfound_connections') || '[]');
+      if (connections.length > 0) {
+          setActiveMenteesCount(12 + connections.length);
+          setNewConnections(connections);
+      }
+  }, []);
+
   const earningsData = [
     { name: 'Week 1', value: 450 },
     { name: 'Week 2', value: 720 },
@@ -35,14 +47,14 @@ const MentorDashboard: React.FC<MentorDashboardProps> = ({ onNavigate }) => {
             <div className="flex justify-between items-start">
                 <div>
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Active Mentees</p>
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-2">12</h3>
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{activeMenteesCount}</h3>
                 </div>
                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
                     <Users size={24} />
                 </div>
             </div>
             <p className="mt-4 text-sm text-emerald-600 flex items-center gap-1">
-                <TrendingUp size={14} /> +2 this week
+                <TrendingUp size={14} /> +{newConnections.length > 0 ? newConnections.length + 2 : 2} this week
             </p>
         </div>
 
@@ -121,6 +133,20 @@ const MentorDashboard: React.FC<MentorDashboardProps> = ({ onNavigate }) => {
                  <Bell size={18} className="text-indigo-600" /> Recent Activity
               </h3>
               <div className="space-y-4">
+                  {newConnections.map((conn, i) => (
+                      <div key={`new-${i}`} className="flex gap-3 items-start pb-4 border-b border-slate-50 dark:border-slate-800 last:border-0 last:pb-0 bg-indigo-50/50 dark:bg-indigo-900/10 p-2 rounded-lg -mx-2">
+                          <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400">
+                             <CheckCircle2 size={16} />
+                          </div>
+                          <div>
+                              <p className="text-sm text-slate-800 dark:text-slate-200">
+                                New mentee connected: <span className="font-bold">{conn.menteeName}</span>
+                              </p>
+                              <span className="text-xs text-slate-400 mt-1 block">Just now</span>
+                          </div>
+                      </div>
+                  ))}
+                  
                   {[1,2,3,4].map((i) => (
                       <div key={i} className="flex gap-3 items-start pb-4 border-b border-slate-50 dark:border-slate-800 last:border-0 last:pb-0">
                           <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">

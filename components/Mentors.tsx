@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { MOCK_MENTORS } from '../constants';
-import { Star, MessageCircle, Clock, CheckCircle, Lock, Calendar, X } from 'lucide-react';
-import { Mentor, View } from '../types';
+import { Star, MessageCircle, CheckCircle, Lock, UserPlus, X } from 'lucide-react';
+import { Mentor } from '../types';
 
 interface MentorsProps {
     isPro?: boolean;
@@ -12,16 +12,27 @@ interface MentorsProps {
 const Mentors: React.FC<MentorsProps> = ({ isPro = false, onUpgrade }) => {
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [bookingStep, setBookingStep] = useState(1); // 1: Select Date, 2: Confirm
+  const [bookingStep, setBookingStep] = useState(1); // 1: Confirm, 2: Success
 
-  const handleBookClick = (mentor: Mentor) => {
+  const handleConnectClick = (mentor: Mentor) => {
       setSelectedMentor(mentor);
       setShowBookingModal(true);
       setBookingStep(1);
   };
 
-  const handleConfirmBooking = () => {
-      setBookingStep(3); // Success state
+  const handleConfirmConnection = () => {
+      // Save connection to local storage to simulate backend
+      const newConnection = {
+          mentorId: selectedMentor?.id,
+          menteeName: 'Alex Rivera',
+          date: new Date().toISOString(),
+          status: 'active'
+      };
+      
+      const existing = JSON.parse(localStorage.getItem('fairfound_connections') || '[]');
+      localStorage.setItem('fairfound_connections', JSON.stringify([...existing, newConnection]));
+
+      setBookingStep(2); // Success state
       setTimeout(() => {
           setShowBookingModal(false);
           setSelectedMentor(null);
@@ -33,7 +44,7 @@ const Mentors: React.FC<MentorsProps> = ({ isPro = false, onUpgrade }) => {
       <div className="flex justify-between items-end mb-8">
         <div>
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Expert Mentors</h2>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Book 1:1 sessions with industry leaders to accelerate your growth.</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Connect with industry leaders to accelerate your growth.</p>
         </div>
         <div className="flex gap-2">
             <select className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-600 dark:text-slate-300 outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors">
@@ -85,14 +96,14 @@ const Mentors: React.FC<MentorsProps> = ({ isPro = false, onUpgrade }) => {
                 </div>
 
                 <button 
-                    onClick={() => isPro ? handleBookClick(mentor) : onUpgrade?.()}
+                    onClick={() => isPro ? handleConnectClick(mentor) : onUpgrade?.()}
                     className={`w-full py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
                         isPro 
                         ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none' 
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                 >
-                    {isPro ? <><MessageCircle size={18} /> Book Session</> : <><Lock size={14}/> Unlock Mentorship</>}
+                    {isPro ? <><UserPlus size={18} /> Connect with Mentor</> : <><Lock size={14}/> Unlock Mentorship</>}
                 </button>
             </div>
         ))}
@@ -109,64 +120,52 @@ const Mentors: React.FC<MentorsProps> = ({ isPro = false, onUpgrade }) => {
         </div>
       </div>
 
-      {/* Booking Modal */}
+      {/* Connection Modal */}
       {showBookingModal && selectedMentor && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
               <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800">
                   <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-                      <h3 className="font-bold text-slate-900 dark:text-white">Book Session with {selectedMentor.name.split(' ')[0]}</h3>
+                      <h3 className="font-bold text-slate-900 dark:text-white">Connect with {selectedMentor.name.split(' ')[0]}</h3>
                       <button onClick={() => setShowBookingModal(false)} className="text-slate-400 hover:text-slate-600"><X size={20}/></button>
                   </div>
                   
                   <div className="p-6">
                       {bookingStep === 1 && (
-                          <div className="space-y-4">
-                              <p className="text-sm text-slate-500">Select a date and time for your 1:1 session.</p>
-                              <div className="grid grid-cols-3 gap-2">
-                                  {['Oct 24', 'Oct 25', 'Oct 26'].map(d => (
-                                      <button key={d} className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-sm font-medium transition-colors text-center text-slate-700 dark:text-slate-300">
-                                          {d}
-                                      </button>
-                                  ))}
+                          <div className="space-y-6">
+                              <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl flex items-start gap-3">
+                                  <MessageCircle className="text-indigo-600 dark:text-indigo-400 shrink-0 mt-1" size={20} />
+                                  <div>
+                                      <p className="text-sm font-medium text-indigo-900 dark:text-indigo-200">Mentorship Request</p>
+                                      <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1">
+                                          You are asking to connect with {selectedMentor.name}. If accepted, they will be added to your network and you can start scheduling sessions.
+                                      </p>
+                                  </div>
                               </div>
-                              <div className="grid grid-cols-2 gap-2 mt-2">
-                                  {['10:00 AM', '2:00 PM', '4:30 PM'].map(t => (
-                                      <button key={t} className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-sm font-medium transition-colors text-center text-slate-700 dark:text-slate-300">
-                                          {t}
-                                      </button>
-                                  ))}
-                              </div>
-                              <button onClick={() => setBookingStep(2)} className="w-full mt-4 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors">
-                                  Continue to Confirm
-                              </button>
-                          </div>
-                      )}
-
-                      {bookingStep === 2 && (
-                          <div className="text-center space-y-4">
-                              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl mb-4">
-                                  <p className="text-sm text-slate-500 mb-1">Session Price</p>
-                                  <p className="text-2xl font-bold text-slate-900 dark:text-white">${selectedMentor.rate}</p>
-                              </div>
-                              <p className="text-sm text-slate-500">
-                                  You are booking a 60-minute session for <span className="font-bold text-slate-900 dark:text-white">Oct 24 at 2:00 PM</span>.
-                              </p>
-                              <div className="flex gap-3">
-                                  <button onClick={() => setBookingStep(1)} className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium text-slate-600 dark:text-slate-300">Back</button>
-                                  <button onClick={handleConfirmBooking} className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors">
-                                      Confirm Booking
+                              
+                              <div className="text-center">
+                                  <p className="text-sm text-slate-500 mb-4">
+                                      Rate: <span className="font-bold text-slate-900 dark:text-white">${selectedMentor.rate}/hr</span>
+                                  </p>
+                                  <button onClick={handleConfirmConnection} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none">
+                                      Send Request
+                                  </button>
+                                  <button onClick={() => setShowBookingModal(false)} className="w-full mt-3 py-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-medium">
+                                      Cancel
                                   </button>
                               </div>
                           </div>
                       )}
 
-                      {bookingStep === 3 && (
+                      {bookingStep === 2 && (
                           <div className="text-center py-6">
-                              <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                              <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                                   <CheckCircle size={32} />
                               </div>
-                              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Booking Confirmed!</h3>
-                              <p className="text-sm text-slate-500">A calendar invite has been sent to your email.</p>
+                              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Request Accepted!</h3>
+                              <p className="text-sm text-slate-500 mb-6">
+                                  {selectedMentor.name} has auto-accepted your request (Demo Mode). You can now view them in your network.
+                              </p>
+                              <p className="text-xs text-slate-400">Redirecting...</p>
                           </div>
                       )}
                   </div>

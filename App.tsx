@@ -21,6 +21,7 @@ import Checkout from './components/Checkout';
 import MentorDashboard from './components/MentorDashboard';
 import MentorClients from './components/MentorClients';
 import ChatSystem from './components/ChatSystem';
+import Login from './components/Login';
 import { Bell, Search, X } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -137,6 +138,14 @@ const App: React.FC = () => {
       setCurrentView(View.MENTOR_DASHBOARD);
   };
 
+  const handleAuth = (role: UserRole) => {
+    if (role === UserRole.MENTOR) {
+      handleMentorLogin();
+    } else {
+      handleSimulatedLogin();
+    }
+  };
+
   const handleSignOut = () => {
     setCurrentView(View.LANDING);
     setProfile(null);
@@ -170,7 +179,7 @@ const App: React.FC = () => {
     switch (currentView) {
       // FREELANCER VIEWS
       case View.ONBOARDING:
-        return <Onboarding onComplete={handleOnboardingComplete} isLoading={loading} />;
+        return <Onboarding onComplete={handleOnboardingComplete} isLoading={loading} onBack={() => setCurrentView(View.LANDING)} />;
       case View.DASHBOARD:
         return <Dashboard analysis={analysis} gamification={gamification} isDark={isDark} onNavigate={setCurrentView} />;
       case View.ROADMAP:
@@ -215,10 +224,20 @@ const App: React.FC = () => {
             setUserRole(UserRole.FREELANCER);
             setCurrentView(View.ONBOARDING);
         }} 
-        onLogin={handleSimulatedLogin}
+        onLogin={() => setCurrentView(View.LOGIN)}
         onMentorLogin={handleMentorLogin}
         isDark={isDark} 
         toggleTheme={toggleTheme} 
+      />
+    );
+  }
+
+  if (currentView === View.LOGIN) {
+    return (
+      <Login 
+        onLogin={handleAuth} 
+        onBack={() => setCurrentView(View.LANDING)}
+        onSignUp={() => setCurrentView(View.ONBOARDING)}
       />
     );
   }

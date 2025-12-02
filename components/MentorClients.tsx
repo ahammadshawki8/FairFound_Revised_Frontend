@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mentee, Task, RoadmapStep } from '../types';
 import { generateMenteeTasks } from '../services/geminiService';
 import { Search, MoreHorizontal, Plus, ChevronRight, MessageCircle, FileText, CheckCircle, Clock, Sparkles, Layout, Code, PenTool, X, Trash2, Users } from 'lucide-react';
@@ -42,6 +42,29 @@ const MentorClients: React.FC = () => {
   
   // Task Generation State
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    // Load new connections from local storage
+    const connections = JSON.parse(localStorage.getItem('fairfound_connections') || '[]');
+    if (connections.length > 0) {
+        const newMentees = connections.map((conn: any, index: number) => ({
+            id: `new-${index}`,
+            name: conn.menteeName,
+            title: 'Senior Frontend Engineer', // Mock title from current user
+            avatarUrl: 'https://ui-avatars.com/api/?name=Alex+Rivera&background=6366f1&color=fff',
+            progress: 0,
+            nextSession: 'Not Scheduled',
+            status: 'active',
+            roadmap: [],
+            tasks: []
+        }));
+        
+        // Filter out duplicates if logic requires, but for demo just append unique
+        // For simplicity, we just add them to the mock list if not present
+        // (In a real app, IDs would be unique)
+        setMentees(prev => [...prev, ...newMentees]);
+    }
+  }, []);
 
   const handleGenerateTasks = async () => {
       if (!selectedMentee) return;
@@ -186,21 +209,25 @@ const MentorClients: React.FC = () => {
                                     <button className="text-sm text-indigo-600 font-medium hover:underline">+ Add Step</button>
                                 </div>
                                 <div className="space-y-4">
-                                    {selectedMentee.roadmap.map((step, idx) => (
-                                        <div key={step.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex items-start gap-4">
-                                            <div className="mt-1">
-                                                {step.status === 'completed' ? <CheckCircle className="text-emerald-500" size={20}/> : <Clock className="text-slate-400" size={20}/>}
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex justify-between">
-                                                    <h4 className="font-bold text-slate-900 dark:text-white">{step.title}</h4>
-                                                    <span className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-500">{step.duration}</span>
+                                    {selectedMentee.roadmap.length === 0 ? (
+                                        <p className="text-slate-500 italic">No roadmap assigned yet.</p>
+                                    ) : (
+                                        selectedMentee.roadmap.map((step, idx) => (
+                                            <div key={step.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex items-start gap-4">
+                                                <div className="mt-1">
+                                                    {step.status === 'completed' ? <CheckCircle className="text-emerald-500" size={20}/> : <Clock className="text-slate-400" size={20}/>}
                                                 </div>
-                                                <p className="text-sm text-slate-500 mt-1">{step.description}</p>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between">
+                                                        <h4 className="font-bold text-slate-900 dark:text-white">{step.title}</h4>
+                                                        <span className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-500">{step.duration}</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-500 mt-1">{step.description}</p>
+                                                </div>
+                                                <button className="text-slate-400 hover:text-slate-600"><MoreHorizontal size={18} /></button>
                                             </div>
-                                            <button className="text-slate-400 hover:text-slate-600"><MoreHorizontal size={18} /></button>
-                                        </div>
-                                    ))}
+                                        ))
+                                    )}
                                 </div>
                              </div>
                         )}

@@ -1,14 +1,15 @@
 
 import React, { useState, useRef } from 'react';
 import { FreelancerProfile } from '../types';
-import { ChevronRight, ChevronLeft, Loader2, Sparkles, Upload, FileText, Check } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Loader2, Sparkles, Upload, FileText, Check, ArrowLeft } from 'lucide-react';
 
 interface OnboardingProps {
   onComplete: (profile: FreelancerProfile) => void;
   isLoading: boolean;
+  onBack: () => void;
 }
 
-const Onboarding: React.FC<OnboardingProps> = ({ onComplete, isLoading }) => {
+const Onboarding: React.FC<OnboardingProps> = ({ onComplete, isLoading, onBack }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FreelancerProfile>({
     name: '',
@@ -222,7 +223,14 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, isLoading }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors relative">
+      <button 
+          onClick={onBack}
+          className="absolute top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors text-sm font-medium"
+      >
+          <ArrowLeft size={16} /> Back to Home
+      </button>
+
       <div className="max-w-xl w-full bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-8 border border-slate-100 dark:border-slate-800">
         <div className="mb-8">
             <div className="flex justify-between text-sm font-medium text-slate-400 dark:text-slate-500 mb-2">
