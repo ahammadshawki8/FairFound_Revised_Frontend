@@ -51,7 +51,7 @@ const Signup: React.FC<SignupProps> = ({ profile, onSignup, onBack }) => {
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8">
           <div className="text-center mb-8">
             <img 
-              src="/images/icon48.png" 
+              src="/icons/logo.svg" 
               alt="FairFound Logo" 
               className="w-12 h-12 mx-auto mb-4"
             />
