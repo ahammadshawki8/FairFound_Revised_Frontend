@@ -1,0 +1,110 @@
+
+import React from 'react';
+import { View, UserRole } from '../types';
+import { LayoutDashboard, Map, Users, Lightbulb, LogOut, Briefcase, FileText, Globe, User, CreditCard, MessageSquare, Briefcase as BriefcaseIcon } from 'lucide-react';
+
+interface SidebarProps {
+  currentView: View;
+  onChangeView: (view: View) => void;
+  isPro: boolean;
+  userRole: UserRole;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isPro, userRole }) => {
+  
+  const freelancerItems = [
+    { id: View.DASHBOARD, label: 'Overview', icon: LayoutDashboard },
+    { id: View.INSIGHTS, label: 'AI Insights', icon: Lightbulb },
+    { id: View.ROADMAP, label: 'My Roadmap', icon: Map },
+    { id: View.PORTFOLIO, label: 'Portfolio Builder', icon: Globe },
+    { id: View.PROPOSALS, label: 'Proposal Writer', icon: FileText },
+    { id: View.COMMUNITY, label: 'Community', icon: Users },
+    { id: View.MENTORS, label: 'Find Mentors', icon: Briefcase },
+    { id: View.PROFILE, label: 'My Profile', icon: User },
+  ];
+
+  const mentorItems = [
+      { id: View.MENTOR_DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
+      { id: View.MENTOR_CLIENTS, label: 'My Mentees', icon: Users },
+      { id: View.MENTOR_CHAT, label: 'Messages', icon: MessageSquare },
+      { id: View.MENTOR_PROFILE, label: 'Mentor Profile', icon: User },
+  ];
+
+  const menuItems = userRole === UserRole.MENTOR ? mentorItems : freelancerItems;
+
+  return (
+    <div className="w-64 bg-slate-900 dark:bg-slate-950 text-slate-300 flex flex-col h-screen fixed left-0 top-0 border-r border-slate-800 shadow-2xl z-20 hidden md:flex transition-colors duration-300">
+      <div className="p-6">
+        <div 
+          className="flex items-center gap-2 mb-8 cursor-pointer"
+          onClick={() => onChangeView(userRole === UserRole.MENTOR ? View.MENTOR_DASHBOARD : View.DASHBOARD)}
+        >
+          <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <span className="text-white font-bold text-xl">F</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl font-bold text-white tracking-tight leading-none">FairFound</span>
+            {userRole === UserRole.MENTOR && <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase mt-1">Mentor</span>}
+          </div>
+          {isPro && userRole === UserRole.FREELANCER && <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 ml-auto">PRO</span>}
+        </div>
+      </div>
+
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentView === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onChangeView(item.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                isActive 
+                  ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 shadow-sm' 
+                  : 'hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              <Icon size={18} />
+              <span className="font-medium text-sm">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 border-t border-slate-800 mt-auto">
+        {userRole === UserRole.FREELANCER && !isPro ? (
+          <div className="p-4 bg-slate-800/50 rounded-xl mb-4 border border-slate-700/50">
+            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pro Plan</h4>
+            <p className="text-xs text-slate-400 mb-3">Unlock unlimited proposals & mentors.</p>
+            <button 
+              onClick={() => onChangeView(View.PRICING)}
+              className="w-full text-xs bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-md transition-colors font-medium"
+            >
+              Upgrade Now
+            </button>
+          </div>
+        ) : userRole === UserRole.FREELANCER && isPro ? (
+           <div className="p-4 bg-slate-800/50 rounded-xl mb-4 border border-slate-700/50 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <CreditCard size={14}/>
+              </div>
+              <div>
+                 <h4 className="text-xs font-semibold text-white">Active Pro</h4>
+                 <p className="text-[10px] text-slate-400">Next billing: Oct 20</p>
+              </div>
+           </div>
+        ) : null}
+
+        <button 
+            onClick={() => onChangeView(View.LANDING)}
+            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors w-full rounded-lg hover:bg-slate-800"
+        >
+          <LogOut size={18} />
+          <span className="text-sm">Sign Out</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
