@@ -423,6 +423,13 @@ export const mentorProfileAPI = {
 // Export API_BASE_URL for avatar upload
 export { API_BASE_URL };
 
+// Media URL helper - converts relative URLs to absolute
+export const MEDIA_BASE_URL = API_BASE_URL.replace('/api', '');
+export const getMediaUrl = (url: string | undefined | null): string => {
+  if (!url) return '';
+  return url.startsWith('http') ? url : `${MEDIA_BASE_URL}${url}`;
+};
+
 // ============================================
 // AGENTS API (Junior Frontend Analysis)
 // ============================================
