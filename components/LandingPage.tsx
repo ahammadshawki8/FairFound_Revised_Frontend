@@ -7,17 +7,27 @@ interface LandingPageProps {
   onStart: () => void;
   onLogin: () => void;
   onMentorLogin: (email: string, password: string) => Promise<void>;
+  onMentorSignup?: (data: { email: string; password: string; username: string; fullName: string; title: string; company: string }) => Promise<void>;
   isDark: boolean;
   toggleTheme: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onMentorLogin, isDark, toggleTheme }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onMentorLogin, onMentorSignup, isDark, toggleTheme }) => {
   const [isMentorMode, setIsMentorMode] = useState(false);
   const [mentorAuthTab, setMentorAuthTab] = useState<'login' | 'signup'>('login');
+  // Login state
   const [mentorEmail, setMentorEmail] = useState('');
   const [mentorPassword, setMentorPassword] = useState('');
   const [mentorLoading, setMentorLoading] = useState(false);
   const [mentorError, setMentorError] = useState('');
+  // Signup state
+  const [signupUsername, setSignupUsername] = useState('');
+  const [signupFullName, setSignupFullName] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupTitle, setSignupTitle] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupLoading, setSignupLoading] = useState(false);
+  const [signupError, setSignupError] = useState('');
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
@@ -180,33 +190,114 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onMentorLog
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    {signupError && (
+                      <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <p className="text-sm text-red-600 dark:text-red-400">{signupError}</p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
-                        <input type="text" placeholder="John" className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" />
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Username *</label>
+                        <input 
+                          type="text" 
+                          placeholder="johndoe" 
+                          value={signupUsername}
+                          onChange={(e) => setSignupUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                          className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" 
+                        />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
-                        <input type="text" placeholder="Doe" className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" />
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name *</label>
+                        <input 
+                          type="text" 
+                          placeholder="John Doe" 
+                          value={signupFullName}
+                          onChange={(e) => setSignupFullName(e.target.value)}
+                          className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" 
+                        />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Work Email</label>
-                      <input type="email" placeholder="you@company.com" className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" />
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Work Email *</label>
+                      <input 
+                        type="email" 
+                        placeholder="you@company.com" 
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" 
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Job Title</label>
-                      <input type="text" placeholder="Senior Developer at Google" className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" />
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Job Title & Company</label>
+                      <input 
+                        type="text" 
+                        placeholder="Senior Developer at Google" 
+                        value={signupTitle}
+                        onChange={(e) => setSignupTitle(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" 
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
-                      <input type="password" placeholder="••••••••" className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" />
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password *</label>
+                      <input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={signupPassword}
+                        onChange={(e) => setSignupPassword(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" 
+                      />
                     </div>
                     <button
-                      onClick={onMentorLogin}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold transition-colors shadow-lg shadow-emerald-200 dark:shadow-none mt-2"
+                      onClick={async () => {
+                        if (!signupUsername || !signupFullName || !signupEmail || !signupPassword) {
+                          setSignupError('Please fill in all required fields');
+                          return;
+                        }
+                        if (signupUsername.length < 3) {
+                          setSignupError('Username must be at least 3 characters');
+                          return;
+                        }
+                        if (signupPassword.length < 6) {
+                          setSignupError('Password must be at least 6 characters');
+                          return;
+                        }
+                        setSignupError('');
+                        setSignupLoading(true);
+                        try {
+                          const [title, company] = signupTitle.includes(' at ') 
+                            ? signupTitle.split(' at ') 
+                            : [signupTitle, ''];
+                          
+                          if (onMentorSignup) {
+                            await onMentorSignup({
+                              email: signupEmail,
+                              password: signupPassword,
+                              username: signupUsername,
+                              fullName: signupFullName,
+                              title: title.trim(),
+                              company: company.trim(),
+                            });
+                          } else {
+                            setSignupError('Mentor signup is not available');
+                          }
+                        } catch (err) {
+                          setSignupError(err instanceof Error ? err.message : 'Signup failed');
+                        } finally {
+                          setSignupLoading(false);
+                        }
+                      }}
+                      disabled={signupLoading}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold transition-colors shadow-lg shadow-emerald-200 dark:shadow-none mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Create Mentor Account
+                      {signupLoading ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Creating account...
+                        </>
+                      ) : 'Create Mentor Account'}
                     </button>
                     <p className="text-center text-xs text-slate-400 mt-4">
                       By signing up, you agree to our Mentor Code of Conduct.

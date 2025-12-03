@@ -363,13 +363,22 @@ const MentorClients: React.FC = () => {
         <div className="p-6 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">My Mentees</h2>
-            <button
-              onClick={() => setShowBulkNotificationModal(true)}
-              className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors"
-              title="Send bulk notification"
-            >
-              <Bell size={18} />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={loadMentees}
+                className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                title="Refresh mentees"
+              >
+                <RefreshCw size={18} />
+              </button>
+              <button
+                onClick={() => setShowBulkNotificationModal(true)}
+                className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors"
+                title="Send bulk notification"
+              >
+                <Bell size={18} />
+              </button>
+            </div>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />

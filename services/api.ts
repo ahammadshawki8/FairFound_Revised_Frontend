@@ -66,7 +66,14 @@ async function apiRequest<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(error.detail || error.message || `API Error: ${response.status}`);
+    // Handle DRF validation errors (which come as field: [errors] format)
+    if (typeof error === 'object' && !error.detail && !error.message) {
+      const firstField = Object.keys(error)[0];
+      if (firstField && Array.isArray(error[firstField])) {
+        throw new Error(`${firstField}: ${error[firstField][0]}`);
+      }
+    }
+    throw new Error(error.detail || error.message || error.error || `API Error: ${response.status}`);
   }
 
   return response.json();

@@ -69,19 +69,19 @@ const Roadmap: React.FC<RoadmapProps> = ({
         const data = await roadmapAPI.getRoadmap();
         if (data.length > 0) {
           const newSteps = data.map(mapStepToFrontend);
-          // Only update if there are changes
-          const currentIds = steps.map(s => `${s.id}-${s.status}`).join(',');
-          const newIds = newSteps.map(s => `${s.id}-${s.status}`).join(',');
-          if (currentIds !== newIds) {
+          // Check for changes in steps and tasks
+          const currentState = steps.map(s => `${s.id}-${s.status}-${s.tasks?.map(t => `${t.id}:${t.completed}`).join(',')}`).join('|');
+          const newState = newSteps.map(s => `${s.id}-${s.status}-${s.tasks?.map(t => `${t.id}:${t.completed}`).join(',')}`).join('|');
+          if (currentState !== newState) {
             setSteps(newSteps);
             setLastUpdated(new Date());
-            console.log('[ROADMAP POLLING] Updated roadmap');
+            console.log('[ROADMAP POLLING] Updated roadmap with task changes');
           }
         }
       } catch (err) {
         console.error('[ROADMAP POLLING] Error:', err);
       }
-    }, 30000); // Poll every 30 seconds
+    }, 10000); // Poll every 10 seconds for faster task updates
 
     return () => {
       if (pollingRef.current) {

@@ -650,13 +650,39 @@ const App: React.FC = () => {
       case View.MY_MENTOR:
         return <MyMentor 
           mentor={connectedMentor} 
-          onCancelContract={() => {
+          onCancelContract={async (review) => {
+            if (connectedMentor) {
+              const mentorId = Number(connectedMentor.id);
+              console.log('[APP] Starting contract cancellation for mentor ID:', mentorId);
+              
+              try {
+                // Submit review if provided
+                if (review && review.rating > 0) {
+                  console.log('[APP] Submitting review:', { mentorId, rating: review.rating });
+                  const { mentorAPI } = await import('./services/mentorService');
+                  await mentorAPI.submitReview(mentorId, review.rating, review.comment);
+                  console.log('[APP] ✅ Review submitted successfully');
+                }
+                
+                // Disconnect from mentor
+                console.log('[APP] Disconnecting from mentor:', mentorId);
+                const { mentorAPI } = await import('./services/mentorService');
+                const result = await mentorAPI.disconnectMentor(mentorId);
+                console.log('[APP] ✅ Disconnect result:', result);
+              } catch (err) {
+                console.error('[APP] ❌ Error during disconnect:', err);
+                // Still proceed with local state cleanup even if API fails
+              }
+            }
+            
+            // Clear local state
             setConnectedMentor(null);
+            setIsPro(false);
             setCurrentView(View.MENTORS);
             addNotification({
               id: Date.now(),
               title: 'Contract Cancelled',
-              message: 'Your mentorship has been cancelled. You can now connect with a new mentor.',
+              message: review?.rating ? 'Thank you for your review! Your mentorship has been cancelled.' : 'Your mentorship has been cancelled. You can now connect with a new mentor.',
               time: 'Just now',
               read: false,
               type: 'info'
@@ -708,6 +734,40 @@ const App: React.FC = () => {
             throw new Error('This account is not a mentor account. Please use the freelancer login.');
           }
           handleAuth(UserRole.MENTOR, { name: response.user.username, email: response.user.email });
+        }}
+        onMentorSignup={async (data) => {
+          // Sign up as mentor
+          console.log('[APP] Mentor signup:', data.email, 'username:', data.username);
+          const response = await authAPI.signup({
+            username: data.username,
+            email: data.email,
+            password: data.password,
+            password_confirm: data.password,
+            role: 'mentor',
+          });
+          
+          // Update mentor profile with title, company, and bio (full name)
+          try {
+            const token = localStorage.getItem('access_token');
+            await fetch('http://localhost:8000/api/auth/mentor-profile/', {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                title: data.title || '',
+                company: data.company || '',
+                bio: data.fullName ? `Hi, I'm ${data.fullName}. I'm here to help freelancers grow.` : '',
+              }),
+            });
+            console.log('[APP] ✅ Mentor profile updated');
+          } catch (err) {
+            console.log('[APP] Could not update mentor profile:', err);
+          }
+          
+          // Log in the mentor (use fullName as display name if available)
+          handleAuth(UserRole.MENTOR, { name: data.fullName || response.user.username, email: response.user.email });
         }}
         isDark={isDark} 
         toggleTheme={toggleTheme} 
