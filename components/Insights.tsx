@@ -82,7 +82,12 @@ const Insights: React.FC<InsightsProps> = ({ analysis, isSignedUp = true, onSign
       await loadInsights();
     } catch (err: any) {
       console.error('[INSIGHTS] Error generating:', err);
-      setError(err.message || 'Failed to generate insights');
+      // Check if it's a "no analysis" error
+      if (err.message?.includes('400') || err.message?.includes('No completed analysis')) {
+        setError('Please complete your profile analysis first to generate insights.');
+      } else {
+        setError(err.message || 'Failed to generate insights');
+      }
     } finally {
       setGenerating(false);
     }

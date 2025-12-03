@@ -149,21 +149,29 @@ export const roadmapAPI = {
 };
 
 // Helper to convert backend step to frontend RoadmapStep type
-export const mapStepToFrontend = (step: RoadmapStepData) => ({
-  id: String(step.id),
-  title: step.title,
-  description: step.description,
-  duration: step.duration,
-  status: step.status,
-  type: step.type,
-  mentorApproved: step.mentor_approved,
-  mentorNotes: step.mentor_notes,
-  tasks: step.tasks?.map(task => ({
-    id: String(task.id),
-    title: task.title,
-    description: task.description,
-    completed: task.status === 'completed',
-    dueDate: task.due_date,
-  })) || [],
-  resources: step.resources || [],
-});
+export const mapStepToFrontend = (step: RoadmapStepData) => {
+  const mappedTasks = step.tasks?.map(task => {
+    const isCompleted = task.status === 'completed';
+    console.log(`[ROADMAP] Task "${task.title}" status: ${task.status}, completed: ${isCompleted}`);
+    return {
+      id: String(task.id),
+      title: task.title,
+      description: task.description,
+      completed: isCompleted,
+      dueDate: task.due_date,
+    };
+  }) || [];
+  
+  return {
+    id: String(step.id),
+    title: step.title,
+    description: step.description,
+    duration: step.duration,
+    status: step.status,
+    type: step.type,
+    mentorApproved: step.mentor_approved,
+    mentorNotes: step.mentor_notes,
+    tasks: mappedTasks,
+    resources: step.resources || [],
+  };
+};

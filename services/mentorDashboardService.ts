@@ -273,7 +273,21 @@ export const mentorDashboardAPI = {
   // Get reviews for the current mentor
   getReviews: async (): Promise<MentorReviewData[]> => {
     console.log('[MENTOR] Fetching reviews');
-    // Get current mentor's profile ID first
+    // Try the dedicated my-reviews endpoint first
+    try {
+      const response = await fetch(`${API_BASE_URL}/mentors/my-reviews/`, {
+        headers: getAuthHeaders(),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[MENTOR] ✅ Fetched reviews:', data.length);
+        return data;
+      }
+    } catch {
+      console.log('[MENTOR] my-reviews endpoint not available, falling back');
+    }
+    
+    // Fallback: Get current user's mentor profile ID
     const meResponse = await fetch(`${API_BASE_URL}/auth/me/`, {
       headers: getAuthHeaders(),
     });
@@ -282,17 +296,29 @@ export const mentorDashboardAPI = {
     }
     const me = await meResponse.json();
     
-    // Get mentor profile
+    // If user has mentor_profile_id, use it directly
+    if (me.mentor_profile_id) {
+      const reviewsResponse = await fetch(`${API_BASE_URL}/mentors/${me.mentor_profile_id}/reviews/`, {
+        headers: getAuthHeaders(),
+      });
+      if (reviewsResponse.ok) {
+        return reviewsResponse.json();
+      }
+    }
+    
+    // Last resort: search mentors list
     const profileResponse = await fetch(`${API_BASE_URL}/mentors/`, {
       headers: getAuthHeaders(),
     });
     if (!profileResponse.ok) {
       return [];
     }
-    const mentors = await profileResponse.json();
-    const myProfile = mentors.find((m: any) => m.name === me.username);
+    const mentorsData = await profileResponse.json();
+    const mentors = mentorsData.results || mentorsData;
+    const myProfile = mentors.find((m: any) => m.user_id === me.id || m.name === me.username);
     
     if (!myProfile) {
+      console.log('[MENTOR] Could not find mentor profile');
       return [];
     }
     

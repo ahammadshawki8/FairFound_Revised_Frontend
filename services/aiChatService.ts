@@ -41,7 +41,7 @@ export interface QuickChatResponse {
 
 // List all AI conversations
 export const getConversations = async (): Promise<AIConversation[]> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/`, {
     headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error('Failed to fetch conversations');
@@ -50,7 +50,7 @@ export const getConversations = async (): Promise<AIConversation[]> => {
 
 // Create a new conversation
 export const createConversation = async (title?: string): Promise<AIConversation> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({ title: title || 'New Conversation' }),
@@ -61,7 +61,7 @@ export const createConversation = async (title?: string): Promise<AIConversation
 
 // Get a specific conversation with messages
 export const getConversation = async (conversationId: number): Promise<AIConversation> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/${conversationId}/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/${conversationId}/`, {
     headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error('Failed to fetch conversation');
@@ -70,7 +70,7 @@ export const getConversation = async (conversationId: number): Promise<AIConvers
 
 // Update conversation title
 export const updateConversation = async (conversationId: number, title: string): Promise<AIConversation> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/${conversationId}/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/${conversationId}/`, {
     method: 'PATCH',
     headers: getAuthHeaders(),
     body: JSON.stringify({ title }),
@@ -81,7 +81,7 @@ export const updateConversation = async (conversationId: number, title: string):
 
 // Delete a conversation
 export const deleteConversation = async (conversationId: number): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/${conversationId}/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/${conversationId}/`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
   });
@@ -94,7 +94,7 @@ export const sendMessage = async (
   message: string,
   pageContext?: string
 ): Promise<ChatResponse> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/${conversationId}/chat/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/${conversationId}/chat/`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({ message, page_context: pageContext }),
@@ -108,7 +108,7 @@ export const sendMessageNewConversation = async (
   message: string,
   pageContext?: string
 ): Promise<ChatResponse> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/chat/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/chat/`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({ message, page_context: pageContext }),
@@ -123,19 +123,33 @@ export const quickChat = async (
   pageContext?: string,
   history?: { role: 'user' | 'assistant'; content: string }[]
 ): Promise<string> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/quick/`, {
+  const url = `${API_BASE_URL}/chats/ai/quick/`;
+  console.log('[AI SERVICE] Calling quickChat:', url);
+  console.log('[AI SERVICE] Message:', message);
+  console.log('[AI SERVICE] Headers:', getAuthHeaders());
+  
+  const response = await fetch(url, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({ message, page_context: pageContext, history: history || [] }),
   });
-  if (!response.ok) throw new Error('Failed to get response');
+  
+  console.log('[AI SERVICE] Response status:', response.status);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[AI SERVICE] Error response:', errorText);
+    throw new Error(`Failed to get response: ${response.status}`);
+  }
+  
   const data: QuickChatResponse = await response.json();
+  console.log('[AI SERVICE] Response data:', data);
   return data.response;
 };
 
 // Clear conversation history
 export const clearHistory = async (conversationId: number): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/chat/ai/${conversationId}/clear/`, {
+  const response = await fetch(`${API_BASE_URL}/chats/ai/${conversationId}/clear/`, {
     method: 'POST',
     headers: getAuthHeaders(),
   });

@@ -115,32 +115,48 @@ export const mentorAPI = {
   // Disconnect from mentor
   disconnectMentor: async (mentorId: number): Promise<{ message: string }> => {
     console.log('[MENTOR] Disconnecting from mentor:', mentorId);
+    console.log('[MENTOR] Request URL:', `${API_BASE_URL}/mentors/${mentorId}/disconnect/`);
+    
     const response = await fetch(`${API_BASE_URL}/mentors/${mentorId}/disconnect/`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
+    
+    console.log('[MENTOR] Response status:', response.status);
+    
     if (!response.ok) {
       const error = await response.json();
+      console.error('[MENTOR] ❌ Disconnect failed:', error);
       throw new Error(error.error || 'Failed to disconnect');
     }
-    console.log('[MENTOR] ✅ Disconnected successfully');
-    return response.json();
+    
+    const result = await response.json();
+    console.log('[MENTOR] ✅ Disconnect response:', result);
+    return result;
   },
 
   // Submit a review for a mentor
   submitReview: async (mentorId: number, rating: number, comment: string): Promise<MentorReview> => {
     console.log('[MENTOR] Submitting review for mentor:', mentorId);
+    console.log('[MENTOR] Review data:', { rating, comment: comment.substring(0, 50) + '...' });
+    
     const response = await fetch(`${API_BASE_URL}/mentors/${mentorId}/reviews/`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ rating, comment }),
     });
+    
+    console.log('[MENTOR] Review response status:', response.status);
+    
     if (!response.ok) {
       const error = await response.json();
+      console.error('[MENTOR] ❌ Review submission failed:', error);
       throw new Error(error.error || 'Failed to submit review');
     }
-    console.log('[MENTOR] ✅ Review submitted');
-    return response.json();
+    
+    const result = await response.json();
+    console.log('[MENTOR] ✅ Review submitted successfully:', result);
+    return result;
   },
 
   // Get current user's connected mentor (from profile)
