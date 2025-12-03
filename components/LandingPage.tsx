@@ -423,17 +423,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onMentorLog
                   </div>
                 </div>
                 {/* Mentor Pricing Explanation */}
-                <div className="mt-10 md:mt-16 max-w-3xl mx-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl md:rounded-2xl p-5 md:p-8">
-                  <h4 className="text-base md:text-lg font-bold text-slate-900 dark:text-white mb-3 md:mb-4">How Mentor Pricing Works</h4>
-                  <div className="space-y-3 md:space-y-4 text-xs md:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                    <p><span className="font-semibold text-slate-800 dark:text-slate-200">Mentor Rates:</span> Each mentor sets a session or hourly rate (e.g. $40/session or $60/hr). You choose based on expertise and reviews.</p>
-                    <p><span className="font-semibold text-slate-800 dark:text-slate-200">Billing:</span> You pay the mentor's displayed rate + a small platform fee (usually 10%) that covers matching, scheduling, and AI insights integration.</p>
-                    <p className="hidden md:block"><span className="font-semibold text-slate-800 dark:text-slate-200">Session Types:</span> 30–60 minute calls, async code review drops, or milestone planning workshops.</p>
-                    <p><span className="font-semibold text-slate-800 dark:text-slate-200">Example:</span> Mentor hourly rate $60 → total charge $66 (includes platform fee). A 3-session month ≈ $198.</p>
-                    <p className="hidden md:block"><span className="font-semibold text-slate-800 dark:text-slate-200">Value Add:</span> Your roadmap and portfolio automatically adapt after each mentor session using their notes + AI summarization.</p>
-                    <p className="text-[10px] md:text-xs text-slate-400">Rates vary by mentor seniority; you always see costs before booking. Cancel or reschedule up to 24h prior.</p>
-                  </div>
-                </div>
+                
               </div>
             </section>
           </>
